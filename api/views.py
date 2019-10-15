@@ -16,7 +16,6 @@ class PhotoView(APIView):
 
     def get(self, request):
         photos = Photo.objects.all()
-        print('photos', photos)
         json = PhotoSerializer(photos, many=True)
 
         return Response(json.data)
@@ -42,7 +41,12 @@ class PhotoView(APIView):
             return Response(photo.errors, status=HTTP_400_BAD_REQUEST)
 
 
-class PersonNameView(APIView):
+class PersonView(APIView):
+    def get(self, request):
+        all_persons = FaceEncoding.objects.all()
+        names = [p.person_name for p in all_persons]
+        return Response(names, status=HTTP_200_OK)
+
     def post(self, request):
         name = request.data.get('name', '')
         photoid = request.data.get('photoid', '')

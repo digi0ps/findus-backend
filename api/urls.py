@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     path('gallery/', views.PhotoView.as_view(), name='gallery'),
-    path('person/', views.PersonNameView.as_view(), name='person'),
+    path('person/', views.PersonView.as_view(), name='person'),
 ]
