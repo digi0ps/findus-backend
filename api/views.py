@@ -40,3 +40,35 @@ class PhotoView(APIView):
         else:
             print('error', photo.errors)
             return Response(photo.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class PersonNameView(APIView):
+    def post(self, request):
+        name = request.data.get('name', '')
+        photoid = request.data.get('photoid', '')
+
+        if not name or not photoid:
+            return Response({
+                'error': 'Bad Params.'
+            }, status=HTTP_400_BAD_REQUEST)
+
+        try:
+            photo = Photo.objects.get(id=photoid)
+            person = photo.persons
+            if person:
+                person.person_name = name
+                person.save()
+
+                person_serialiser = PersonSerializer(person)
+                return Response(person_serialiser.data,
+                                status=HTTP_200_OK,
+                                )
+        except:
+            return Response({
+                'error': 'Photo or Person not found.'
+            }, status=HTTP_404_NOT_FOUND)
+
+        return Response({
+            'name': name,
+            'photoid': photoid,
+        }, status=HTTP_200_OK)
