@@ -26,6 +26,7 @@ def match_encodings(encodings):
         if True in matches:
             face_distances = fr.face_distance(known_encodings, encoding)
             best_match_index = np.argmin(face_distances)
+            print(matches, face_distances, best_match_index)
             if matches[best_match_index]:
                 name = known_faces[best_match_index]
 
