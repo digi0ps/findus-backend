@@ -9,8 +9,8 @@ class PersonSerializer(serializers.ModelSerializer):
 
 
 class PhotoSerializer(serializers.ModelSerializer):
-    # persons = PersonSerializer(many=True, read_only=True)
+    persons = PersonSerializer(read_only=True)
 
     class Meta:
         model = Photo
-        fields = ['image']
+        fields = ['id', 'image', 'persons']
