@@ -10,6 +10,4 @@ class FaceEncoding(models.Model):
 
 
 class Photo(models.Model):
-    image = models.ImageField(upload_to='gallery')
-    person = models.ForeignKey(
-        to=FaceEncoding, on_delete=models.SET_NULL, null=True)
+    image = models.ImageField(upload_to='')
