@@ -1,3 +1,4 @@
+from django.db.models import ObjectDoesNotExist
 from rest_framework.response import Response
 from rest_framework.status import *
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -49,30 +50,22 @@ class PersonView(APIView):
 
     def post(self, request):
         name = request.data.get('name', '')
-        photoid = request.data.get('photoid', '')
+        person_id = request.data.get('person_id', '')
 
-        if not name or not photoid:
+        if not name or not person_id:
             return Response({
                 'error': 'Bad Params.'
             }, status=HTTP_400_BAD_REQUEST)
 
         try:
-            photo = Photo.objects.get(id=photoid)
-            person = photo.persons
-            if person:
-                person.person_name = name
-                person.save()
+            person = FaceEncoding.objects.get(id=person_id)
+            person.person_name = name
+            person.save()
 
-                person_serialiser = PersonSerializer(person)
-                return Response(person_serialiser.data,
-                                status=HTTP_200_OK,
-                                )
-        except:
+            person_serialiser = PersonSerializer(person)
+            return Response(person_serialiser.data, status=HTTP_200_OK)
+
+        except ObjectDoesNotExist:
             return Response({
                 'error': 'Photo or Person not found.'
             }, status=HTTP_404_NOT_FOUND)
-
-        return Response({
-            'name': name,
-            'photoid': photoid,
-        }, status=HTTP_200_OK)
