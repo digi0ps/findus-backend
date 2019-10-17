@@ -9,7 +9,7 @@ class PersonSerializer(serializers.ModelSerializer):
 
 
 class PhotoSerializer(serializers.ModelSerializer):
-    persons = PersonSerializer(read_only=True)
+    persons = PersonSerializer(read_only=True, many=True)
 
     class Meta:
         model = Photo

@@ -29,8 +29,17 @@ def load(strarray):
     return np.asarray(json.loads(strarray))
 
 
-def match_encodings(encodings):
-    # Retreive encodings from DB
+def new_person(encoding):
+    face_encoding = FaceEncoding()
+    face_encoding.encoding = dump(encoding)
+    face_encoding.save()
+    return face_encoding
+
+
+def recognize_image(filename):
+    img = get_image(filename)
+    encodings = get_encodings(img)
+
     all_encodings = FaceEncoding.objects.all()
     known_encodings = [load(f.encoding) for f in all_encodings]
     known_faces = [f.person_name for f in all_encodings]
@@ -40,33 +49,22 @@ def match_encodings(encodings):
     face_encoding = None
 
     for encoding in encodings:
+        if not len(all_encodings):
+            yield new_person(encoding)
+            continue
+
         matches = fr.compare_faces(known_encodings, encoding)
-        name = "Unknown"
+        face_distances = fr.face_distance(known_encodings, encoding)
+        best_match_index = np.argmin(face_distances)
 
-        if True in matches:
-            face_distances = fr.face_distance(known_encodings, encoding)
-            best_match_index = np.argmin(face_distances)
+        print(matches, face_distances)
 
-            if matches[best_match_index]:
-                name = known_faces[best_match_index]
-                print(all_encodings)
-                face_encoding = list(all_encodings)[best_match_index]
+        if True in matches and face_distances[best_match_index] < 0.4:
+            name = known_faces[best_match_index]
+            face_encoding = list(all_encodings)[best_match_index]
         else:
-            face_encoding = FaceEncoding()
-            face_encoding.encoding = dump(encoding)
-            face_encoding.save()
+            face_encoding = new_person(encoding)
 
-        print(name)
-    # TODO: Return all the matched encodings
-    return face_encoding
-
-
-def recognize_image(filename):
-    img = get_image(filename)
-    encodings = get_encodings(img)
-    fenc = match_encodings(encodings)
-
-    return fenc
-
+        yield face_encoding
 
 # TODO: Merge Multiple Encodings into one

@@ -10,6 +10,5 @@ class FaceEncoding(models.Model):
 
 class Photo(models.Model):
     image = models.ImageField(upload_to='')
-    # TODO: Make it Many To Many
-    persons = models.ForeignKey(
-        to=FaceEncoding, on_delete=models.SET_NULL, null=True)
+    persons = models.ManyToManyField(
+        to=FaceEncoding, null=True)

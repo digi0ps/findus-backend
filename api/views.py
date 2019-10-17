@@ -32,8 +32,10 @@ class PhotoView(APIView):
             absolute_path = os.path.join(
                 BASE_DIR, 'gallery', str(photo_obj.image))
 
-            person = recognize_image(absolute_path)
-            photo_obj.persons = person
+            for person in recognize_image(absolute_path):
+                print(person)
+                photo_obj.persons.add(person)
+
             photo_obj.save()
 
             return Response(photo.data, status=HTTP_202_ACCEPTED)
@@ -45,8 +47,9 @@ class PhotoView(APIView):
 class PersonView(APIView):
     def get(self, request):
         all_persons = FaceEncoding.objects.all()
-        names = [p.person_name for p in all_persons]
-        return Response(names, status=HTTP_200_OK)
+        json = PersonSerializer(all_persons, many=True)
+
+        return Response(json.data, status=HTTP_200_OK)
 
     def post(self, request):
         name = request.data.get('name', '')
