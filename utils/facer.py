@@ -60,7 +60,7 @@ def recognize_image(filename):
         face_distances = fr.face_distance(known_encodings, encoding)
         best_match_index = np.argmin(face_distances)
 
-        print(matches, face_distances)
+        # print(matches, face_distances)
 
         if True in matches and face_distances[best_match_index] < 0.4:
             name = known_faces[best_match_index]
