@@ -9,7 +9,7 @@ from root.settings import BASE_DIR
 
 from .models import *
 from .serializers import *
-from utils.facer import recognize_image
+from utils.facer import recognize_image, new_person
 from utils.images import TempImage
 
 
@@ -33,8 +33,9 @@ class PhotoView(APIView):
             absolute_path = os.path.join(
                 BASE_DIR, 'gallery', str(photo_obj.image))
 
-            for person in recognize_image(absolute_path):
-                print(person)
+            for [person, encoding] in recognize_image(absolute_path):
+                if not person:
+                    person = new_person(encoding, name='Unknown')
                 photo_obj.persons.add(person)
 
             photo_obj.save()
@@ -89,7 +90,11 @@ class SearchView(APIView):
 
         result = {}
 
-        for person in recognize_image(image.path):
+        for [person, _] in recognize_image(image.path):
+            # If person is an unknown guy, skip
+            if not person:
+                continue
+
             images = person.photo_set.all()
             images_json = PhotoSerializer(images, many=True).data
             result[person.person_name] = images_json

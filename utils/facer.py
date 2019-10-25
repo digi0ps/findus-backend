@@ -53,14 +53,12 @@ def recognize_image(filename):
 
     for encoding in encodings:
         if not len(all_encodings):
-            yield new_person(encoding)
+            yield [None, encoding]
             continue
 
         matches = fr.compare_faces(known_encodings, encoding)
         face_distances = fr.face_distance(known_encodings, encoding)
         best_match_index = np.argmin(face_distances)
-
-        # print(matches, face_distances)
 
         if True in matches and face_distances[best_match_index] < 0.4:
             name = known_faces[best_match_index]
@@ -68,8 +66,8 @@ def recognize_image(filename):
         else:
             name = namegenerator.gen()
             name = name[name.find('-') + 1:]
-            face_encoding = new_person(encoding, name)
+            face_encoding = None
 
-        yield face_encoding
+        yield [face_encoding, encoding]
 
 # TODO: Merge Multiple Encodings into one
