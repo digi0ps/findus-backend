@@ -4,6 +4,7 @@ import numpy as np
 import json
 
 from api.models import FaceEncoding
+import namegenerator
 
 
 def get_image(filename):
@@ -29,8 +30,12 @@ def load(strarray):
     return np.asarray(json.loads(strarray))
 
 
-def new_person(encoding):
+def new_person(encoding, name=''):
     face_encoding = FaceEncoding()
+
+    if (name):
+        face_encoding.person_name = name
+
     face_encoding.encoding = dump(encoding)
     face_encoding.save()
     return face_encoding
@@ -38,33 +43,31 @@ def new_person(encoding):
 
 def recognize_image(filename):
     img = get_image(filename)
-    encodings = get_encodings(img)
+    encodings = get_encodings(img)  # From the user uploaded image
 
-    all_encodings = FaceEncoding.objects.all()
+    all_encodings = FaceEncoding.objects.all()  # All encodings in database
     known_encodings = [load(f.encoding) for f in all_encodings]
     known_faces = [f.person_name for f in all_encodings]
-
-    print('SFGADF', known_encodings, known_faces)
 
     face_encoding = None
 
     for encoding in encodings:
         if not len(all_encodings):
-            yield new_person(encoding)
+            yield [None, encoding]
             continue
 
         matches = fr.compare_faces(known_encodings, encoding)
         face_distances = fr.face_distance(known_encodings, encoding)
         best_match_index = np.argmin(face_distances)
 
-        print(matches, face_distances)
-
         if True in matches and face_distances[best_match_index] < 0.4:
             name = known_faces[best_match_index]
             face_encoding = list(all_encodings)[best_match_index]
         else:
-            face_encoding = new_person(encoding)
+            name = namegenerator.gen()
+            name = name[name.find('-') + 1:]
+            face_encoding = None
 
-        yield face_encoding
+        yield [face_encoding, encoding]
 
 # TODO: Merge Multiple Encodings into one

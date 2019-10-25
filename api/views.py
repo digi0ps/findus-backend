@@ -9,7 +9,8 @@ from root.settings import BASE_DIR
 
 from .models import *
 from .serializers import *
-from utils.facer import recognize_image
+from utils.facer import recognize_image, new_person
+from utils.images import TempImage
 
 
 class PhotoView(APIView):
@@ -32,8 +33,9 @@ class PhotoView(APIView):
             absolute_path = os.path.join(
                 BASE_DIR, 'gallery', str(photo_obj.image))
 
-            for person in recognize_image(absolute_path):
-                print(person)
+            for [person, encoding] in recognize_image(absolute_path):
+                if not person:
+                    person = new_person(encoding, name='Unknown')
                 photo_obj.persons.add(person)
 
             photo_obj.save()
@@ -72,3 +74,34 @@ class PersonView(APIView):
             return Response({
                 'error': 'Photo or Person not found.'
             }, status=HTTP_404_NOT_FOUND)
+
+
+class SearchView(APIView):
+    def post(self, request):
+        try:
+            file = request.FILES['image']
+        except KeyError:
+            return Response({
+                'error': 'Bad Params.'
+            }, status=HTTP_400_BAD_REQUEST)
+
+        image = TempImage(file)
+        image.save()
+
+        result = {}
+
+        for [person, _] in recognize_image(image.path):
+            # If person is an unknown guy, skip
+            if not person:
+                continue
+
+            images = person.photo_set.all()
+            images_json = PhotoSerializer(images, many=True).data
+            result[person.person_name] = images_json
+
+        image.delete()
+
+        return Response({
+            'found': bool(len(result.keys())),
+            'result': result,
+        }, status=HTTP_200_OK)
