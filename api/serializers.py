@@ -4,8 +4,8 @@ from .models import *
 
 class PersonSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FaceEncoding
-        fields = ['person_name', 'id']
+        model = Person
+        fields = ['name', 'id']
 
 
 class PhotoSerializer(serializers.ModelSerializer):

@@ -3,7 +3,7 @@ import face_recognition as fr
 import numpy as np
 import json
 
-from api.models import FaceEncoding
+from api.models import Person
 import namegenerator
 
 
@@ -31,23 +31,23 @@ def load(strarray):
 
 
 def new_person(encoding, name=''):
-    face_encoding = FaceEncoding()
+    person = Person()
 
     if (name):
-        face_encoding.person_name = name
+        person.name = name
 
-    face_encoding.encoding = dump(encoding)
-    face_encoding.save()
-    return face_encoding
+    person.face_encoding = dump(encoding)
+    person.save()
+    return person
 
 
 def recognize_image(filename):
     img = get_image(filename)
     encodings = get_encodings(img)  # From the user uploaded image
 
-    all_encodings = FaceEncoding.objects.all()  # All encodings in database
-    known_encodings = [load(f.encoding) for f in all_encodings]
-    known_faces = [f.person_name for f in all_encodings]
+    all_encodings = Person.objects.all()  # All encodings in database
+    known_encodings = [load(f.face_encoding) for f in all_encodings]
+    known_faces = [f.name for f in all_encodings]
 
     face_encoding = None
 

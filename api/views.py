@@ -48,7 +48,7 @@ class PhotoView(APIView):
 
 class PersonView(APIView):
     def get(self, request):
-        all_persons = FaceEncoding.objects.all()
+        all_persons = Person.objects.all()
         json = PersonSerializer(all_persons, many=True)
 
         return Response(json.data, status=HTTP_200_OK)
@@ -63,8 +63,8 @@ class PersonView(APIView):
             }, status=HTTP_400_BAD_REQUEST)
 
         try:
-            person = FaceEncoding.objects.get(id=person_id)
-            person.person_name = name
+            person = Person.objects.get(id=person_id)
+            person.name = name
             person.save()
 
             person_serialiser = PersonSerializer(person)
@@ -97,7 +97,7 @@ class SearchView(APIView):
 
             images = person.photo_set.all()
             images_json = PhotoSerializer(images, many=True).data
-            result[person.person_name] = images_json
+            result[person.name] = images_json
 
         image.delete()
 
