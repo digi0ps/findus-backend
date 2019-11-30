@@ -9,7 +9,7 @@ from root.settings import BASE_DIR
 
 from .models import *
 from .serializers import *
-from utils.facer import recognize_image, new_person
+from utils.facer import FaceRecogniser
 from utils.images import TempImage
 
 
@@ -33,9 +33,14 @@ class PhotoView(APIView):
             absolute_path = os.path.join(
                 BASE_DIR, 'gallery', str(photo_obj.image))
 
-            for [person, encoding] in recognize_image(absolute_path):
+            facer = FaceRecogniser(absolute_path)
+
+            for [person, encoding] in facer.get_matched_persons():
+
                 if not person:
-                    person = new_person(encoding, name='Unknown')
+                    person = Person(face_encoding=encoding)
+                    person.save()
+
                 photo_obj.persons.add(person)
 
             photo_obj.save()
@@ -89,8 +94,9 @@ class SearchView(APIView):
         image.save()
 
         result = {}
+        facer = FaceRecogniser(image.path)
 
-        for [person, _] in recognize_image(image.path):
+        for [person, _] in facer.get_matched_persons():
             # If person is an unknown guy, skip
             if not person:
                 continue

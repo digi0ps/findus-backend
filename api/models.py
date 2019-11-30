@@ -4,7 +4,7 @@ from django.db import models
 
 
 class Person(models.Model):
-    name = models.CharField(max_length=50, blank=True, default="Anon")
+    name = models.CharField(max_length=50, blank=True, default="Unknown")
     face_encoding = models.CharField(max_length=9999)
 
 
