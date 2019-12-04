@@ -28,23 +28,24 @@ class FaceRecogniser:
 
         return face_encodings
 
-    def dump(self, nparray):
+    def dump_arr(self, nparray):
         return json.dumps(nparray.tolist())
 
-    def load(self, strarray):
+    def load_arr(self, strarray):
         return np.asarray(json.loads(strarray))
 
     def get_matched_persons(self):
         encodings = self.get_encodings()  # From the user uploaded image
 
         stored_persons = Person.objects.all()  # All encodings in database
-        stored_encodings = [load(f.face_encoding) for f in stored_persons]
+        stored_encodings = [self.load_arr(f.face_encoding)
+                            for f in stored_persons]
 
         matched_person = None
 
         for encoding in encodings:
             if not len(stored_persons):
-                yield [None, encoding]
+                yield [None, self.dump_arr(encoding)]
                 continue
 
             matches = fr.compare_faces(stored_encodings, encoding)
@@ -57,5 +58,6 @@ class FaceRecogniser:
                 matched_person = None
 
             # Convert nparray to string and return
-            encoding = dump(encoding)
+            encoding = self.dump_arr(encoding)
+
             yield [matched_person, encoding]

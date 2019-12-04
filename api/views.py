@@ -23,32 +23,38 @@ class PhotoView(APIView):
         return Response(json.data)
 
     def post(self, request):
-        # TODO: Save Images with custom names
-        photo = PhotoSerializer(data=request.data)
+        responses = []
+        images = request.data.getlist('image')
 
-        if photo.is_valid():
-            photo_obj = photo.save()
+        for image in images:
+            data = {
+                'image': image,
+            }
 
-            # DO FACE REC Logic
-            absolute_path = os.path.join(
-                BASE_DIR, 'gallery', str(photo_obj.image))
+            photo = PhotoSerializer(data=data)
+            if photo.is_valid():
+                photo_obj = photo.save()
 
-            facer = FaceRecogniser(absolute_path)
+                # DO FACE REC Logic
+                absolute_path = os.path.join(
+                    BASE_DIR, 'gallery', str(photo_obj.image))
 
-            for [person, encoding] in facer.get_matched_persons():
+                facer = FaceRecogniser(absolute_path)
 
-                if not person:
-                    person = Person(face_encoding=encoding)
-                    person.save()
+                for [person, encoding] in facer.get_matched_persons():
 
-                photo_obj.persons.add(person)
+                    if not person:
+                        person = Person(face_encoding=encoding)
+                        person.save()
 
-            photo_obj.save()
+                    photo_obj.persons.add(person)
 
-            return Response(photo.data, status=HTTP_202_ACCEPTED)
-        else:
-            print('error', photo.errors)
-            return Response(photo.errors, status=HTTP_400_BAD_REQUEST)
+                photo_obj.save()
+                responses.append(photo.data)
+            else:
+                print('error', photo.errors)
+                responses.append(photo.errors)
+        return Response(responses, status=HTTP_200_OK)
 
 
 class PersonView(APIView):
