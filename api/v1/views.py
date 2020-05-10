@@ -7,8 +7,8 @@ import os
 
 from root.settings import BASE_DIR
 
-from .models import *
-from .serializers import *
+from api.models import *
+from api.serializers import *
 from utils.facer import FaceRecogniser
 from utils.images import TempImage
 
@@ -22,7 +22,7 @@ class PhotoView(APIView):
 
         return Response(json.data)
 
-    def post(self, request):
+    def put(self, request):
         responses = []
         images = request.data.getlist('image')
 

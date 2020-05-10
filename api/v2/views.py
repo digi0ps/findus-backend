@@ -14,7 +14,7 @@ class FindView(APIView):
             file = request.FILES['image']
         except KeyError:
             return Response({
-                'error': 'Bad Params.'
+                'error': 'Param Image not there.'
             }, status=HTTP_400_BAD_REQUEST)
 
         image = TempImage(file)
