@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  django:
+    build: .
+    command: bash -c /code/start.sh
+    volumes:
+      - .:/code
+    ports:
+      - 8000:8000
+    restart: always
