@@ -10,7 +10,6 @@
 
 FindUs is a Web App which gives users a *photo gallery on steroids*. User's can upload and store images on the website. The faces of people are identified in the images uploaded. This allows user to label them, group photos by person and retrieve similar images of a person from a search image.
 
-
 ## Features
 
 - Receive images via POST and store/serve them from Media folder.
@@ -26,9 +25,15 @@ FindUs is a Web App which gives users a *photo gallery on steroids*. User's can 
    - If an existing encoding matches, then the Person is added to the Image entry.
    -  Else a new entry is created and is added to the image.
 
+## Running the backend alone
+1. Install [Docker For Mac](https://docs.docker.com/docker-for-mac/install/)
+2. Run `docker-compose up` from this directory to boot them.
+3. Run `docker-compose down` to kill them.
+
 ## Endpoints
-- `/api/gallery/` **GET**: Returns a list of images with persons details attached.
-- `/api/gallery/` **POST**: Upload an image to the website.
-- `/api/person/` **GET**: Returns the list of persons existing in thedatabase.
-- `/api/person/` **POST**: Update the name of a person with ID.
-- `/api/search/` **POST**: Upload a search image and returns list of images matching the persons in the search image.
+- `/api/v1/gallery/` **GET**: Returns a list of images with persons details attached.
+- `/api/v1/gallery/` **PUT**: Upload an image to the website.
+- `/api/v1/person/` **GET**: Returns the list of persons existing in thedatabase.
+- `/api/v1/person/` **POST**: Update the name of a person with ID.
+- `/api/v1/search/` **POST**: Upload a search image and returns list of images matching the persons in the search image.
+- `/api/v2/find/` **POST**: Like search, but just returns the names, ids of the persons found.
